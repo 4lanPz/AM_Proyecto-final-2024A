@@ -1,6 +1,14 @@
 # Login y ubicación en Flutter
 APK:
 
+## Funcionalidades
+- Login con Firebase y con Gmail
+- Registro con Firebase
+- Barra de navegación
+- Administración de usuarios (admin y user)
+- Ubicación en tiempo real
+- Ubicación en segundo plano
+- Cálculo de área del polígono
 
 ## Herramientas
 
@@ -49,7 +57,6 @@ nombreproyecto/
 │   │   │   │   │   ├─── drawable/  <---------- aqui pegar el archivo xml
 │   │   │   │   │   ├─── resto de carpetas/  <---------- aqui pegar el archivo png
 ```
-
 ## Generar APK
 Ejecutar el siguiente comando y buscar la APK generada en build/app/flutter-apk/
 ```bash
