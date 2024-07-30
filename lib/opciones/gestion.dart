@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -78,11 +77,7 @@ class _GestionPageState extends State<GestionPage> {
 
   Future<String> _getAddressFromCoordinates(
       double latitude, double longitude) async {
-    final apiKey = kIsWeb
-        ? 'AIzaSyBSZYiBJTG19B3D0gkk6QVNjQNw5Ei9XxU' // Reemplaza con tu API Key para la web
-        : dotenv.env[
-            'GOOGLE_MAPS_API_KEY']; // Cargar desde .env para otras plataformas
-
+    final apiKey = dotenv.env['GOOGLE_MAPS_API_KEY'];
     if (apiKey == null) {
       throw Exception('API Key no encontrada en el archivo .env');
     }
