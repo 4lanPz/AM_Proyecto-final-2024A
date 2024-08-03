@@ -1,5 +1,5 @@
 # Proyecto final Aplicaciones Móviles utilizando Flutter
-APK: https://www.mediafire.com/file/m9jq5kft5p9ktti/ProyectoFinal.apk/file
+APK: https://www.mediafire.com/file/hrv8ue2rcgyhx5p/proyectofinal.apk
 
 Web: https://proyectofinalmoviles2024a.web.app/
 
