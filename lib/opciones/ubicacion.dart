@@ -41,12 +41,6 @@ class _UbicacionState extends State<Ubicacion> {
         if (mounted) {
           _updateLocation(LatLng(position.latitude, position.longitude));
         }
-
-        Geolocator.getPositionStream().listen((Position position) {
-          if (mounted) {
-            _updateLocation(LatLng(position.latitude, position.longitude));
-          }
-        });
       } catch (e) {
         if (mounted) {
           setState(() {
@@ -96,11 +90,14 @@ class _UbicacionState extends State<Ubicacion> {
   void _updateLocation(LatLng position) {
     setState(() {
       _currentPosition = position;
-      _currentMarker = Marker(
-        markerId: MarkerId('currentLocation'),
-        position: position,
-        infoWindow: InfoWindow(title: 'Tu Ubicación Actual'),
-      );
+      if (kIsWeb) {
+        // Solo actualizar el marcador en la vista web
+        _currentMarker = Marker(
+          markerId: MarkerId('currentLocation'),
+          position: position,
+          infoWindow: InfoWindow(title: 'Tu Ubicación Actual'),
+        );
+      }
       _isLoading = false;
     });
 
@@ -172,10 +169,12 @@ class _UbicacionState extends State<Ubicacion> {
                     target: _currentPosition ?? LatLng(-0.180653, -78.467838),
                     zoom: 15,
                   ),
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: false,
+                  myLocationEnabled: !kIsWeb, // Desactivar solo en web
+                  myLocationButtonEnabled: !kIsWeb, // Desactivar solo en web
                   mapType: MapType.normal,
-                  markers: _currentMarker != null ? {_currentMarker!} : {},
+                  markers: kIsWeb && _currentMarker != null
+                      ? {_currentMarker!}
+                      : {}, // Mostrar marcador solo en web
                   onMapCreated: (GoogleMapController controller) {
                     if (mounted) {
                       setState(() {
