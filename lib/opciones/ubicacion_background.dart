@@ -5,7 +5,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'dart:async';
-import 'package:meta/meta.dart'; // Asegúrate de importar el paquete meta si no está ya incluido
 
 const notificationChannelId = 'my_foreground';
 const notificationId = 888;
@@ -13,7 +12,6 @@ const notificationId = 888;
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
   await Firebase.initializeApp();
-  print("inicio de servicio");
   const int updateIntervalMinutes = 5; // Intervalo de actualización en minutos
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
@@ -26,7 +24,6 @@ void onStart(ServiceInstance service) async {
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
   Timer.periodic(const Duration(minutes: updateIntervalMinutes), (timer) async {
-    print('Timer ejecutado');
     try {
       final position = await Geolocator.getCurrentPosition();
       final user = FirebaseAuth.instance.currentUser;
@@ -44,32 +41,55 @@ void onStart(ServiceInstance service) async {
           SetOptions(merge: true),
         );
 
-        print('Ubicación guardada en Firestore');
-
         // Muestra una notificación con el mensaje actualizado
         flutterLocalNotificationsPlugin.show(
           notificationId,
           'Ubicación Actualizada',
           'Tu ubicación se ha actualizado',
-          NotificationDetails(
+          const NotificationDetails(
             android: AndroidNotificationDetails(
               notificationChannelId,
               'MY FOREGROUND SERVICE',
               icon: 'ic_launcher',
               ongoing:
-                  false, // Permitir que el usuario descarte la notificación
+                  false, // Asegúrate de que la notificación no sea continua
               importance: Importance.high,
               priority: Priority.high,
-              autoCancel:
-                  true, // Añadir esta línea para hacer la notificación descartable
+              autoCancel: true, // Permitir que la notificación sea descartada
             ),
           ),
         );
       } else {
-        print('No hay usuario autenticado');
+        await flutterLocalNotificationsPlugin.show(
+            notificationId,
+            'ERROR',
+            'Vuelva a iniciar sesión',
+            const NotificationDetails(
+                android: AndroidNotificationDetails(
+              notificationChannelId,
+              'MY FOREGROUND SERVICE',
+              icon: 'ic_launcher',
+              ongoing: false,
+              importance: Importance.high,
+              priority: Priority.high,
+              autoCancel: true,
+            )));
       }
     } catch (e) {
-      print("Error al obtener la ubicación o enviar a Firestore: $e");
+      await flutterLocalNotificationsPlugin.show(
+          notificationId,
+          'Ubicación desactivada',
+          'Por favor activa la ubicación',
+          const NotificationDetails(
+              android: AndroidNotificationDetails(
+            notificationChannelId,
+            'MY FOREGROUND SERVICE',
+            icon: 'ic_launcher',
+            ongoing: false,
+            importance: Importance.high,
+            priority: Priority.high,
+            autoCancel: true,
+          )));
     }
   });
 

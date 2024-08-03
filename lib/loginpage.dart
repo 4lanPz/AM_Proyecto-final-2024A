@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'registerpage.dart';
 import 'navigation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:geolocator/geolocator.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -17,6 +18,88 @@ class _LoginState extends State<LoginPage> {
   late String email, password;
   final _formKey = GlobalKey<FormState>();
   String error = '';
+  bool _showPermissionsMessage = true;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _checkLocationPermissions();
+    });
+  }
+
+  Future<void> _checkLocationPermissions() async {
+    if (kIsWeb) {
+      // Para la web, no se necesita manejar permisos de ubicación de la misma forma
+      return;
+    }
+
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      _showLocationDisabledDialog();
+      return;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      if (_showPermissionsMessage) {
+        // Muestra el mensaje informativo
+        await _showLocationPermissionsMessage();
+      }
+      if (permission == LocationPermission.denied) {
+        // Solicita permisos si aún no han sido concedidos
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          // Manejar la denegación de permisos
+          return;
+        }
+      }
+      if (permission == LocationPermission.deniedForever) {
+        // Manejar la denegación permanente de permisos
+        return;
+      }
+    }
+    // Permisos concedidos o ya se ha mostrado el mensaje inicial
+    setState(() {
+      _showPermissionsMessage = false; // No mostrar más el mensaje si los permisos ya están concedidos
+    });
+  }
+
+  Future<void> _showLocationPermissionsMessage() async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Permisos de Ubicación Necesarios'),
+        content: Text('Para utilizar esta aplicación, es necesario permitir los permisos de ubicación en todo momento.'),
+        actions: [
+          TextButton(
+            child: Text('Aceptar'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLocationDisabledDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Ubicación Desactivada'),
+        content: Text('Por favor, enciende la ubicación en tu dispositivo para usar la aplicación.'),
+        actions: [
+          TextButton(
+            child: Text('Aceptar'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

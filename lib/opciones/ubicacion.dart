@@ -20,6 +20,7 @@ class _UbicacionState extends State<Ubicacion> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool _isLoading = true;
+  bool _locationDisabled = false; // Estado para manejar la ubicación desactivada
   Marker? _currentMarker;
 
   @override
@@ -51,6 +52,10 @@ class _UbicacionState extends State<Ubicacion> {
     } else {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
+        setState(() {
+          _isLoading = false;
+          _locationDisabled = true; // Actualizar el estado para ubicación desactivada
+        });
         return;
       }
 
@@ -58,11 +63,17 @@ class _UbicacionState extends State<Ubicacion> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
+          setState(() {
+            _isLoading = false;
+          });
           return;
         }
       }
 
       if (permission == LocationPermission.deniedForever) {
+        setState(() {
+          _isLoading = false;
+        });
         return;
       }
 
@@ -99,6 +110,7 @@ class _UbicacionState extends State<Ubicacion> {
         );
       }
       _isLoading = false;
+      _locationDisabled = false; // Asegúrate de restablecer este estado si la ubicación se vuelve a habilitar
     });
 
     if (_currentPosition != null && _mapController != null) {
@@ -162,37 +174,45 @@ class _UbicacionState extends State<Ubicacion> {
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
-          : Stack(
-              children: [
-                GoogleMap(
-                  initialCameraPosition: CameraPosition(
-                    target: _currentPosition ?? LatLng(-0.180653, -78.467838),
-                    zoom: 15,
+          : _locationDisabled
+              ? Center(
+                  child: Text(
+                    'Por favor, encienda la ubicación en su dispositivo.',
+                    style: TextStyle(fontSize: 18, color: Colors.red),
+                    textAlign: TextAlign.center,
                   ),
-                  myLocationEnabled: !kIsWeb, // Desactivar solo en web
-                  myLocationButtonEnabled: !kIsWeb, // Desactivar solo en web
-                  mapType: MapType.normal,
-                  markers: kIsWeb && _currentMarker != null
-                      ? {_currentMarker!}
-                      : {}, // Mostrar marcador solo en web
-                  onMapCreated: (GoogleMapController controller) {
-                    if (mounted) {
-                      setState(() {
-                        _mapController = controller;
-                      });
-                    }
-                  },
+                )
+              : Stack(
+                  children: [
+                    GoogleMap(
+                      initialCameraPosition: CameraPosition(
+                        target: _currentPosition ?? LatLng(-0.180653, -78.467838),
+                        zoom: 15,
+                      ),
+                      myLocationEnabled: !kIsWeb, // Desactivar solo en web
+                      myLocationButtonEnabled: !kIsWeb, // Desactivar solo en web
+                      mapType: MapType.normal,
+                      markers: kIsWeb && _currentMarker != null
+                          ? {_currentMarker!}
+                          : {}, // Mostrar marcador solo en web
+                      onMapCreated: (GoogleMapController controller) {
+                        if (mounted) {
+                          setState(() {
+                            _mapController = controller;
+                          });
+                        }
+                      },
+                    ),
+                    Positioned(
+                      bottom: 20,
+                      left: 20,
+                      child: ElevatedButton(
+                        onPressed: _guardarUbicacion,
+                        child: Text('Guardar Ubicación'),
+                      ),
+                    ),
+                  ],
                 ),
-                Positioned(
-                  bottom: 20,
-                  left: 20,
-                  child: ElevatedButton(
-                    onPressed: _guardarUbicacion,
-                    child: Text('Guardar Ubicación'),
-                  ),
-                ),
-              ],
-            ),
     );
   }
 }
