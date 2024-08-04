@@ -1,6 +1,4 @@
 # Proyecto final Aplicaciones Móviles utilizando Flutter
-APK: https://www.mediafire.com/file/e4aeki5e3p7y5d1/GeoPulseHub.apk
-
 Web: https://proyectofinalmoviles2024a.web.app/
 
 ## Funcionalidades
@@ -101,8 +99,115 @@ npx firebase deploy --only hosting:nombredesuproyecto
 
 ![image](https://github.com/user-attachments/assets/77761d16-b8cb-4f18-bec3-89de932815c7)
 
+# Generación de la firma en Flutter
+## Generar un ícono
+Añadir la dependencia 
+```bash
+flutter pub add flutter_launcher_icons
+```
+y añadir el sistema al cual le quieras añadir el ícono, el ícono se debe encontrar en una carpeta assets, esto se realiza en el archivo yalm
+```bash
+dev_dependencies:
+  flutter_launcher_icons: "^0.13.1"
 
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/icon.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "path/to/image.png"
+    background_color: "#hexcode"
+    theme_color: "#hexcode"
+  windows:
+    generate: true
+    image_path: "path/to/image.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "path/to/image.png"
+```
 
+Luego ejecutar el siguiente comando para generar los íconos en sus diferentes formatos para las diferentes plataformas que se hayan elegido
+```bash
+flutter pub run flutter_launcher_icons
+```
+## Gneración de llave 
+Ejecutar el siguiente comando para poder generar la llave que se utiliza para firmar la app
 
+```bash
+macOS / Linux
+keytool -genkey -v -keystore path/a/tu/carpeta -keyalg RSA \
+        -keysize 2048 -validity 10000 -alias upload
+
+Windows
+keytool -genkey -v -keystore path/a/tu/carpeta `
+        -storetype JKS -keyalg RSA -keysize 2048 -validity 10000 `
+        -alias upload
+```
+
+## Configuración en app
+Primero agrefar la dependiencia en app/build.graddle
+```bash
+implementation("com.google.android.material:material:<version>")
+```
+Ahora creamos el archivo key.properties en la raiz de app, en esta vamos a ingresar los datos que nos pide para la generación de la llave
+```bash
+key.properties
+
+storePassword=<password-from-previous-step>
+keyPassword=<password-from-previous-step>
+keyAlias=upload
+storeFile=<keystore-file-location>
+```
+### Recordar que el path en storeFile no debe ser directamente en tu pc local si no en la carpeta dentro del proyecto para que al utilizar en otro dispositivo no de error al momento de encontrar la key
+
+Ahora en app/build.graddle agregamos esto para configurar la llave y la firma en la versión release y que tome los datos del archivo key.properties
+
+```bash
+Configure signing in gradle
+#
+Antes del apartado android
+
+   def keystoreProperties = new Properties()
+   def keystorePropertiesFile = rootProject.file('key.properties')
+   if (keystorePropertiesFile.exists()) {
+       keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+   }
+
+android {
+        ..
+}
+-----------------------------------------
+Dentro del apartado android
+    android {
+        ...
+
+       signingConfigs {
+           release {
+               keyAlias keystoreProperties['keyAlias']
+               keyPassword keystoreProperties['keyPassword']
+               storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+               storePassword keystoreProperties['storePassword']
+           }
+       }
+        buildTypes {
+           release {
+
+                signingConfig signingConfigs.debug
+                signingConfig signingConfigs.release
+           }
+        }
+    ...
+    }
+```
+# Generar APK firmada
+Ejecutar el comando 
+```bash
+flutter build apk --release
+o
+flutter run --release
+```
 
 
