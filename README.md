@@ -1,5 +1,5 @@
 # Proyecto final Aplicaciones Móviles utilizando Flutter
-APK: https://www.mediafire.com/file/hrv8ue2rcgyhx5p/proyectofinal.apk
+APK: https://www.mediafire.com/file/e4aeki5e3p7y5d1/GeoPulseHub.apk
 
 Web: https://proyectofinalmoviles2024a.web.app/
 
