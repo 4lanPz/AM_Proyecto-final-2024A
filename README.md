@@ -1,9 +1,11 @@
 # Proyecto final Aplicaciones Móviles utilizando Flutter
 Web: https://proyectofinalmoviles2024a.web.app/
 
-Christian Pañora
-Alan Perez
-Ingrith Revelo
+# Integrantes
+- Christian Pañora
+- Alan Perez
+- Ingrith Revelo
+
 
 ## Funcionalidades
 - Login con Firebase y con Gmail
