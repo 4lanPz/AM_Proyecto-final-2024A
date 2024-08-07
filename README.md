@@ -216,4 +216,6 @@ o
 flutter run --release
 ```
 
+# APKPURE
+![image](https://github.com/user-attachments/assets/5b9d5a12-1ba5-4ebb-b89a-81c5ce513560)
 
