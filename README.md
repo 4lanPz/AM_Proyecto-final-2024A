@@ -16,8 +16,35 @@ Web: https://proyectofinalmoviles2024a.web.app/
 - Ubicación en segundo plano
 - Cálculo de área del polígono
 
+# Estructura 
+### Main
+- Inicialización de Firebase
+- Carga del archivo env
+### Login
+- Pedir permisos de Ubicación
+- Iniciar sesión
+- Llamada a inicio de sesión con Gmail
+### Login con Gmail
+- Llamada a Firebase con Gmail
+### Registro
+- Llamada a Firebase para registrar un unevo usuario
+### Navegación
+- Barra de navegación con las diferentes opciones de la App
+### Gestión
+- Iniciación de servicio en segundo plano
+- Gestion de usuarios registrados 
+- Datos de usuario: su correo y su ultima ubicación
+### Ubicación
+- Permisos de ubicación
+- Muestra Google Maps
+- Ubicación en tiempo real
+- Guardar ubicación actual
+### Area
+- Muestra Google Maps
+- Muestra los diferentes marcadores con informacion del usuario al que pertenece
+- Muestra el calculo del Area total dependiendo del número de marcadores/usuarios
+  
 ## Herramientas
-
 - Visual Studio Code
 - Flutter
 - Android Studio
